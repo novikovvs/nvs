@@ -1,11 +1,28 @@
 services:
   app:
     image: highjin/front-app:latest
+    container_name: front_app
     platform: linux/amd64
-    ports:
-      - "80:8080"
     networks:
       - local
+
+  nginx:
+    image: nginx
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./certbot/www/:/var/www/certbot/:ro
+    ports:
+      - "80:80"
+    networks:
+      - local
+
+  certbot:
+    image: certbot/certbot:latest
+    volumes:
+      - ./certbot/www/:/var/www/certbot/:rw
+      - ./certbot/conf/:/etc/letsencrypt/:rw
+
 
 networks:
   local:
