@@ -1,18 +1,11 @@
 <template>
-  <head>
-    <meta charset="utf-8">
-    <link rel="shortcut icon" type="image/png" href="@/assets/nvs-logo.svg"/>
-    <title>NVS</title>
-    ...
-  </head>
-
   <div class="container">
     <TabMenu :model="items">
     </TabMenu>
   </div>
   <Terminal
       welcomeMessage="Welcome. Список команд: list"
-      prompt="vs $"
+      prompt="nvs $"
       aria-label="Terminal"
   />
   <Sidebar v-model:visible="linksVisible" header="Links" position="bottom" style="height: auto">
@@ -44,7 +37,7 @@ export default {
   },
   mounted() {
     TerminalService.on('command', (command) => {
-      switch (command) {
+      switch (command.toLowerCase()) {
         case 'list': {
           this.list()
           break;
