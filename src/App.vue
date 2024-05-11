@@ -12,6 +12,16 @@
     <Menubar v-if="!$isMobile()" :model="links"/>
     <Menu v-else :model="links"/>
   </Sidebar>
+
+  <Dialog v-model:visible="showContactDialog" modal header="Contact me" :style="{ width: '25rem' }">
+    <div class="mb">
+      <Textarea placeholder="Текст для контактной информации" :invalid="invalidContactText" v-model="contactText" rows="5" cols="30"/>
+    </div>
+    <div class="mb">
+      <Button type="button" label="Отправить" severity="contrast" @click="sendContactMe"></Button>
+    </div>
+  </Dialog>
+  <Toast/>
 </template>
 <script>
 import Terminal from "primevue/terminal";
@@ -23,6 +33,8 @@ import Sidebar from "primevue/sidebar";
 import Menu from "primevue/menu";
 import Button from "primevue/button";
 import Dock from "primevue/dock";
+import Textarea from "primevue/textarea";
+import Toast from "primevue/toast";
 
 export default {
   components: {
@@ -34,6 +46,8 @@ export default {
     Menu,
     Button,
     Dock,
+    Textarea,
+    Toast
   },
   mounted() {
     TerminalService.on('command', (command) => {
@@ -48,6 +62,10 @@ export default {
         }
         case 'links': {
           this.showLinks()
+          break;
+        }
+        case 'contact-me': {
+          this.showContactMe()
           break;
         }
         default: {
@@ -84,9 +102,17 @@ export default {
           label: 'Email',
           icon: "pi pi-at",
           url: 'mailto:vladonnx@mail.ru'
+        },
+        {
+          label: 'YA.Music',
+          icon: "pi pi-headphones",
+          url: 'https://music.yandex.ru/artist/18391903'
         }
       ],
       linksVisible: false,
+      showContactDialog: false,
+      contactText: '',
+      invalidContactText: false,
     }
   },
   methods: {
@@ -109,7 +135,44 @@ export default {
           'Буду рад вместе создавать инновационное программное обеспечение!\n')
     },
     list() {
-      TerminalService.emit('response', 'Доступные команды: about, links')
+      TerminalService.emit('response', 'Доступные команды: about, links, contact-me')
+    },
+    showContactMe() {
+      this.invalidContactText = false
+      TerminalService.emit('response', `Открываю контактную форму...`)
+      setTimeout(() => {
+        this.showContactDialog = true;
+      }, 500);
+    },
+    sendContactMe() {
+      if (this.contactText.length <= 0) {
+        this.invalidContactText = true
+        this.$toast.add({
+          severity: 'error',
+          summary: 'Заполните поле "Текст"',
+          life: 2000,
+        })
+        return
+      }
+      this.$axios.post('/alerts/contact-me', {
+        text: this.contactText
+      }).then(() => {
+        this.$toast.add({
+          severity: 'success',
+          summary: 'Обратная связь отправлена!',
+          life: 2000,
+        })
+
+        setTimeout(() => {
+          this.showContactDialog = false;
+        }, 500);
+      }).catch(() => {
+        this.$toast.add({
+          severity: 'error',
+          summary: 'Не удалось отправить форму!',
+          life: 2000,
+        })
+      });
     },
   },
   name: "App"
@@ -121,6 +184,10 @@ export default {
 @font-face {
   font-family: "Rocket Pop";
   src: url("@/assets/fonts/rocketpophalf.otf");
+}
+
+.mb {
+  margin-bottom: 10px
 }
 
 .p-menuitem-link {
