@@ -2,12 +2,14 @@ services:
   app:
     image: highjin/front-app:latest
     container_name: front_app
+    pull_policy: always
     platform: linux/amd64
     networks:
       - local
 
   backend-app:
     image: highjin/backend-app
+    pull_policy: always
     container_name: backend-app
     networks:
       - local
