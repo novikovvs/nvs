@@ -6,6 +6,12 @@ services:
     networks:
       - local
 
+  backend-app:
+    image: highjin/backend-app
+    container_name: backend-app
+    networks:
+      - local
+
   nginx:
     image: nginx
     volumes:
