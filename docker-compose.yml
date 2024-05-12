@@ -10,7 +10,7 @@ services:
   backend-app:
     image: highjin/backend-app:latest
     pull_policy: always
-    container_name: backend-app
+    container_name: backend_app
     networks:
       - local
 
